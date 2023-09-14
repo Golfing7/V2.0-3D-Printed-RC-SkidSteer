@@ -174,8 +174,8 @@ const char* htmlHomePage PROGMEM = R"HTMLHOMEPAGE(
     </tr>
     <tr>
         <td colspan=1>
-            <td class="button" ontouchstart='adjustBucket(-sliderAdjustmentLevel)' onmousedown='adjustBucket(-sliderAdjustmentLevel)'><span class="arrows" >&#8678;</span></td>
-            <td class="button" ontouchstart='adjustBucket(sliderAdjustmentLevel)' onmousedown='adjustBucket(sliderAdjustmentLevel)'><span class="arrows" >&#8680;</span></td>
+        <td class="button" ontouchstart='bucketButton(true, "l")' onmousedown='bucketButton(true, "l")' onmouseup='bucketButton(false, "l")' ontouchend='bucketButton(false, "l")'><span class="arrows" >&#8678;</span></td>
+        <td class="button" ontouchstart='bucketButton(true, "r")' onmousedown='bucketButton(true, "r")' onmouseup='bucketButton(false, "r")' ontouchend='bucketButton(false, "r")'><span class="arrows" >&#8680;</span></td>
         </td>
     </tr>
     <tr/>
@@ -191,8 +191,8 @@ const char* htmlHomePage PROGMEM = R"HTMLHOMEPAGE(
     </tr>
     <tr>
         <td colspan=1>
-        <td class="button" ontouchstart='adjustAux(-sliderAdjustmentLevel)' onmousedown='adjustAux(-sliderAdjustmentLevel)'><span class="arrows" >&#8678;</span></td>
-        <td class="button" ontouchstart='adjustAux(sliderAdjustmentLevel)' onmousedown='adjustAux(sliderAdjustmentLevel)'><span class="arrows" >&#8680;</span></td>
+            <td class="button" ontouchstart='auxButton(true, "l")' onmousedown='auxButton(true, "l")' onmouseup='auxButton(false, "l")' ontouchend='auxButton(false, "l")'><span class="arrows" >&#8678;</span></td>
+            <td class="button" ontouchstart='auxButton(true, "r")' onmousedown='auxButton(true, "r")' onmouseup='auxButton(false, "r")' ontouchend='auxButton(false, "r")'><span class="arrows" >&#8680;</span></td>
         </td>
     </tr>
 
@@ -213,6 +213,55 @@ const char* htmlHomePage PROGMEM = R"HTMLHOMEPAGE(
     const bucketMinimum = 10
     const bucketMaximum = 180
 
+    var bucketPressedL = false
+    var bucketPressedR = false
+    var bucketPressTime = 0
+
+    var auxPressedL = false
+    var auxPressedR = false
+    var auxPressTime = 0
+
+    var adjuster = window.setInterval(function () {
+        if (Date.now() - auxPressTime > 1000) {
+            if (auxPressedL) {
+                adjustAux(-sliderAdjustmentLevel)
+            } else if (auxPressedR) {
+                adjustAux(sliderAdjustmentLevel)
+            }
+        }
+
+        if (Date.now() - bucketPressTime > 1000) {
+            if (bucketPressedL) {
+                adjustBucket(-sliderAdjustmentLevel)
+            } else if (bucketPressedR) {
+                adjustBucket(sliderAdjustmentLevel)
+            }
+        }
+    }, 100)
+
+    function auxButton(state, button) {
+        if (button === "l") {
+            auxPressedL = state
+        } else if (button === "r") {
+            auxPressedR = state
+        }
+        auxPressTime = Date.now()
+        if (state) {
+            adjustAux(button === "r" ? sliderAdjustmentLevel : -sliderAdjustmentLevel)
+        }
+    }
+
+    function bucketButton(state, button) {
+        if (button === "l") {
+            bucketPressedL = state
+        } else if (button === "r") {
+            bucketPressedR = state
+        }
+        bucketPressTime = Date.now()
+        if (state) {
+            adjustBucket(button === "r" ? sliderAdjustmentLevel : -sliderAdjustmentLevel)
+        }
+    }
 
     function initCarInputWebSocket()
     {
